@@ -1,2 +1,2 @@
-# pclurker.github.io
+# PCLMinesweeper
 Github Main Page
