@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
 <body>
     <h1>Minesweeper Variant</h1>
-    <div>Width<input type="text" id="width" value="Some text..."></div>
-    <div>Height<input type="text" id="height" value="Some text..."></div>
-    <button type="button" onclick="buttonClicked()">Click Me!</button>
+    <div>Width<input type="text" id="width" value=""></div>
+    <div>Height<input type="text" id="height" value=""></div>
+    <!-- <button type="button" onclick="buttonClicked()">Click Me!</button> -->
+    <div>Mine<input type="text" id="n_mine" value=""></div>
+    <button type="button" onclick="NewGameClicked()">New Game</button>
     <p id="display"></p>
+
+    <div id="gameboard">
+
+        <div id="cell_1_1"></div>
+
+
+    </div>
 
     <script src="script.js"></script>
 </body>

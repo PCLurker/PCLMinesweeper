@@ -1,0 +1,27 @@
+:root {
+  /* Define default number of columns/rows and cell size */
+  --grid-columns: 10; /* Example default */
+  --grid-rows: 10;    /* Example default */
+  --cell-size: 30px;
+  --gap-size: 1px;
+}
+
+#gameboard {
+  display: grid;
+  /* Use the variable for the *count* of columns, and the variable for the *size* */
+  grid-template-columns: repeat(var(--grid-columns), var(--cell-size));
+  /* Use the variable for the *count* of rows, and the variable for the *size* */
+  grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
+  gap: var(--gap-size); /* Use variable for gap */
+
+  /* Optional: Set base font size for grid context if needed */
+  /**font-size: 0; /* Prevents space between inline-block elements if not using flex/grid perfectly */
+}
+
+.cell {
+  /* Use the variable for the cell dimensions */
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid gray;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
