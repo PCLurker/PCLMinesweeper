@@ -3,6 +3,7 @@
 
 <head>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js"></script>
 </head>
 
 <body>
@@ -12,6 +13,9 @@
     <!-- <button type="button" onclick="buttonClicked()">Click Me!</button> -->
     <div>Mine<input type="text" id="n_mine" value=""></div>
     <button type="button" onclick="NewGameClicked()">New Game</button>
+    <button type="button" onclick="ShowMineClicked()">Show Mine</button>
+    <button type="button" onclick="ShowCellClueClicked()">Show Clue</button>
+    <div><input type="checkbox" id="opening_enabled">Opening?</div>
     <p id="display"></p>
 
     <div id="gameboard">
@@ -21,7 +25,7 @@
 
     </div>
 
-    <script src="script.js"></script>
+    
 </body>
 
 </html>

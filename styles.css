@@ -1,9 +1,13 @@
 :root {
   /* Define default number of columns/rows and cell size */
-  --grid-columns: 10; /* Example default */
-  --grid-rows: 10;    /* Example default */
-  --cell-size: 30px;
-  --gap-size: 1px;
+  --grid-columns: 10;
+  /* Example default */
+  --grid-rows: 10;
+  /* Example default */
+  --cell-size: 40px;
+  --cell-font-size: calc(var(--cell-size) * 0.7);
+  /* Example: 70% of cell size 
+  /* --gap-size: 1px; */
 }
 
 #gameboard {
@@ -12,7 +16,7 @@
   grid-template-columns: repeat(var(--grid-columns), var(--cell-size));
   /* Use the variable for the *count* of rows, and the variable for the *size* */
   grid-template-rows: repeat(var(--grid-rows), var(--cell-size));
-  gap: var(--gap-size); /* Use variable for gap */
+  /* gap: var(--gap-size); Use variable for gap */
 
   /* Optional: Set base font size for grid context if needed */
   /**font-size: 0; /* Prevents space between inline-block elements if not using flex/grid perfectly */
@@ -23,5 +27,14 @@
   width: var(--cell-size);
   height: var(--cell-size);
   border: 1px solid gray;
-  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  box-sizing: border-box;
+  /* Include padding and border in the element's total width and height */
+  color: #000000;
+  display: flex;
+  /* Enable Flexbox */
+  align-items: center;
+  /* Vertically center content */
+  justify-content: center;
+  /* Horizontally center content */
+  font-size: var(--cell-font-size);
 }
