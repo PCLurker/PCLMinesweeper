@@ -113,36 +113,109 @@ class MinesweeperGame {
         }
         return mineCount;
     }
-    // Add methods for handling cell clicks, reveals, flags, win/loss conditions, etc.
-    // public handleCellClick(row: number, col: number, isRightClick: boolean): void { ... }
-    // public revealCell(row: number, col: number): number { ... } // Return mine count or -1 if mine
     /**
-     * Handles the left-click event on a cell.
-     * @param row The row index of the clicked cell (0-based).
-     * @param col The column index of the clicked cell (0-based).
+     * Handles a left-click on a cell.
+     * Implements the specific left-click game logic for the variant.
+     * @param row The row index.
+     * @param col The column index.
+     * @param game The MinesweeperGame instance.
+     * @returns True if the game is over, false otherwise.
      */
-    static handleLeftClick(row, col) {
-        console.log(`Left clicked cell at row ${row}, col ${col}`);
-        // Implement your game logic for left-clicking a cell (e.g., revealing the cell)
+    static handleLeftClick(event, row, col, game) {
         const cellElement = document.getElementById(`cell_${row}_${col}`);
-        if (cellElement && !cellElement.classList.contains('revealed') && !cellElement.classList.contains('flagged')) {
-            cellElement.classList.add('revealed');
-            // Add logic to check for mines, count neighbors, etc.
+        if (!cellElement)
+            return false;
+        const currentState = getCellStateFromElement(cellElement);
+        let gameOver = false;
+        // Only react to clicks on unopened cells that are marked
+        if (currentState !== 'unopened-marked-safe' && currentState !== 'unopened-marked-mine') {
+            console.log(`Left click ignored on cell ${row},${col} in state: ${currentState}`);
+            return false; // Do nothing if not in a marked unopened state
         }
+        // Remove unopened and marking classes, add revealed
+        cellElement.classList.remove('unopened', 'marked-safe', 'marked-mine');
+        cellElement.classList.add('revealed');
+        const isCellMine = game.isMine(row, col); // Assuming isMine method exists on game instance
+        if (currentState === 'unopened-marked-safe') {
+            // User marked safe and left-clicked
+            if (isCellMine) {
+                // Incorrect guess: Marked safe, but it's a mine
+                gameOver = true;
+                cellElement.classList.add('mine'); // Visual indication it was a mine
+                //cellElement.style.backgroundColor = 'red'; // Explicitly red background for revealed mine
+                console.log("Game Over: Marked safe, but it was a mine!");
+            }
+            else {
+                // Correct guess: Marked safe, and it's safe
+                //cellElement.style.backgroundColor = 'lightgreen'; // Explicitly green background for revealed safe
+                cellElement.classList.add('safe'); // Visual indication it was safe
+                console.log(`Revealed safe cell at ${row},${col}`);
+                // Display neighbor mine count including itself
+                const mineCount = game.countNeighborMines(row, col); // Assuming this method exists
+                cellElement.textContent = mineCount > 0 ? String(mineCount) : '';
+            }
+        }
+        else if (currentState === 'unopened-marked-mine') {
+            // User marked mine and left-clicked
+            if (!isCellMine) {
+                // Incorrect guess: Marked mine, but it's safe
+                gameOver = true;
+                cellElement.classList.add('safe'); // Visual indication it was safe
+                //cellElement.style.backgroundColor = 'lightgreen'; // Show it was safe visually
+                // Display neighbor mine count including itself (on the cell they thought was a mine)
+                const mineCount = game.countNeighborMines(row, col);
+                cellElement.textContent = mineCount > 0 ? String(mineCount) : '';
+                console.log("Game Over: Marked mine, but it was safe!");
+            }
+            else {
+                // Correct guess: Marked mine, and it's a mine
+                cellElement.classList.add('mine'); // Visual indication it's a mine
+                //cellElement.style.backgroundColor = 'red'; // Explicitly red background for revealed mine
+                // Display neighbor mine count including itself (on the cell they correctly identified as a mine)
+                const mineCount = game.countNeighborMines(row, col);
+                cellElement.textContent = String(mineCount); // Display count as per user rule
+                console.log(`Correctly identified mine at ${row},${col}`);
+                // Note: According to your rule, this correct guess doesn't end the game immediately.
+            }
+        }
+        // Disable further clicks on this cell (e.g., by removing event listeners or checking state at start)
+        // For simplicity, the state check at the start of the function serves this purpose.
+        // TODO: If gameOver is true, trigger global game over sequence.
+        return gameOver;
     }
     /**
-     * Handles the right-click (contextmenu) event on a cell.
-     * @param row The row index of the clicked cell (0-based).
-     * @param col The column index of the clicked cell (0-based).
-     * @param event The MouseEvent object.
+     * Handles a right-click (contextmenu) on a cell.
+     * Implements the specific right-click game logic for the variant (toggling marks).
+     * @param row The row index.
+     * @param col The column index.
+     * @param game The MinesweeperGame instance.
      */
-    static handleRightClick(row, col, event) {
-        console.log(`Right clicked cell at row ${row}, col ${col}`);
-        // Implement your game logic for right-clicking a cell (e.g., flagging the cell)
+    static handleRightClick(event, row, col, game) {
         const cellElement = document.getElementById(`cell_${row}_${col}`);
-        if (cellElement && !cellElement.classList.contains('revealed')) {
-            cellElement.classList.toggle('flagged'); // Toggle the 'flagged' class
+        if (!cellElement)
+            return;
+        const currentState = getCellStateFromElement(cellElement);
+        // Only react to clicks on unopened cells
+        if (currentState === 'revealed-mine' || currentState === 'revealed-safe') {
+            console.log(`Right click ignored on revealed cell ${row},${col}`);
+            return;
         }
+        // Toggle between the unopened marked states
+        if (currentState === 'unopened-nomark') {
+            cellElement.classList.add('marked-safe');
+            console.log(`Cell ${row},${col} marked as safe`);
+        }
+        else if (currentState === 'unopened-marked-safe') {
+            cellElement.classList.remove('marked-safe');
+            cellElement.classList.add('marked-mine');
+            console.log(`Cell ${row},${col} marked as mine`);
+        }
+        else if (currentState === 'unopened-marked-mine') {
+            cellElement.classList.remove('marked-mine');
+            console.log(`Cell ${row},${col} mark removed`);
+        }
+        // The visual update (background images for marks) should be handled by your CSS
+        // based on the presence of the 'marked-safe' or 'marked-mine' classes on an 'unopened' cell.
         // Prevent the default browser context menu from appearing
         event.preventDefault();
     }
@@ -191,13 +264,13 @@ function generateGameBoardHTML(width, height, game) {
             cell.classList.add("cell");
             // Attach event listeners for left-click and right-click
             // Left-click
-            cell.addEventListener('click', () => {
+            cell.addEventListener('click', (event) => {
                 // Retrieve row and col from data attributes within the handler
                 const clickedRow = Number(cell.dataset.row);
                 const clickedCol = Number(cell.dataset.col);
                 // Ensure conversion is successful before calling handler
                 if (!isNaN(clickedRow) && !isNaN(clickedCol)) {
-                    MinesweeperGame.handleLeftClick(clickedRow, clickedCol);
+                    MinesweeperGame.handleLeftClick(event, clickedRow, clickedCol, game);
                 }
             });
             // Right-click (contextmenu event)
@@ -207,7 +280,7 @@ function generateGameBoardHTML(width, height, game) {
                 const clickedCol = Number(cell.dataset.col);
                 // Ensure conversion is successful before calling handler
                 if (!isNaN(clickedRow) && !isNaN(clickedCol)) {
-                    MinesweeperGame.handleRightClick(clickedRow, clickedCol, event);
+                    MinesweeperGame.handleRightClick(event, clickedRow, clickedCol, game);
                 }
             });
             // Append the cell to the gameboard container
@@ -300,4 +373,17 @@ function ShowCellClueClicked() {
             }
         }
     }
+}
+// Helper function to get the state from CSS classes
+function getCellStateFromElement(cellElement) {
+    if (cellElement.classList.contains('revealed')) {
+        return cellElement.classList.contains('mine') ? 'revealed-mine' : 'revealed-safe';
+    }
+    if (cellElement.classList.contains('marked-safe')) {
+        return 'unopened-marked-safe';
+    }
+    if (cellElement.classList.contains('marked-mine')) {
+        return 'unopened-marked-mine';
+    }
+    return 'unopened-nomark'; // Default unopened state
 }

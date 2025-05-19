@@ -38,3 +38,19 @@
   /* Horizontally center content */
   font-size: var(--cell-font-size);
 }
+
+.cell.safe {
+  background-color: #7fff7f;
+}
+
+.cell.mine {
+  background-color: #ff7f7f;
+}
+
+.cell.marked-safe{
+  border: 8px solid #00ff00;
+}
+
+.cell.marked-mine{
+  border: 8px solid #ff0000;
+}
